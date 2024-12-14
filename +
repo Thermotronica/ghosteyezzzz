@@ -1,0 +1,28 @@
+{
+    "githubIssues.queries": [
+        {
+            "label": "My Issues",
+            "query": "is:open assignee:${thermotronica} repo:${owner}/${repository}",
+            "groupBy": [
+                "milestone"
+            ]
+        },
+        {
+            "label": "Created Issues",
+            "query": "author:${thermotronica} state:open repo:${owner}/${repository} sort:created-desc"
+        },
+        {
+            "label": "Recent Issues",
+            "query": "state:open repo:${owner}/${repository} sort:updated-desc"
+        }
+    ],
+    "genieai.enableConversationHistory": true,
+    "genieai.promptPrefix.customPrompt1-enabled": true,
+    "genieai.promptPrefix.customPrompt2-enabled": true,
+    "genieai.personalizedName": "Genie// lily",
+    "genieai.openai.model": "text-ada-001",
+    "workbench.activityBar.location": "top",
+    "window.newWindowProfile": "Default",
+    "workbench.iconTheme": "vs-minimal",
+    "workbench.editor.defaultBinaryEditor": "vscode.videoPreview"
+}
