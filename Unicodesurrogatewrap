@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unicode Terminal with Surrogate Declassifier</title>
+    <style>
+        body { font-family: monospace; max-width: 800px; margin: 20px auto; background: #1a1a1a; color: #e0e0e0; }
+        #terminal { background: #000; padding: 20px; border: 1px solid #555; border-radius: 5px; }
+        input, select, button { margin: 5px 0; padding: 5px; background: #333; color: #fff; border: 1px solid #666; }
+        #output, #uPlusWindow { margin-top: 10px; padding: 10px; background: #222; border: 1px solid #444; min-height: 50px; }
+        #uPlusWindow { max-width: 300px; font-size: 12px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <input type="text" id="inputText" placeholder="Enter text here" />
+        <br>
+        <select id="operand">
+            <option value="add">Add</option>
+            <option value="subtract">Subtract</option>
+        </select>
+        <input type="number" id="operandValue" value="1" min="0" max="9999" style="width: 60px;" />
+        <br>
+        <button onclick="processText()">Process</button>
+        <button onclick="saveToMemory()">Save</button>
+        <button onclick="loadFromMemory()">Load</button>
+        <br>
+        <div id="output">Output will appear here</div>
+        <div id="uPlusWindow">U+ Analysis: </div>
+    </div>
+
+    <script>
+        const MEMORY_SIZE = 8 * 1024 * 1024;
+        let virtualMemory = '';
+
+        function textToUnicodeArray(text) {
+            const codePoints = [];
+            const surrogateInfo = [];
+            for (let i = 0; i < text.length; i++) {
+                const code = text.charCodeAt(i);
+                if (code >= 0xD800 && code <= 0xDBFF && i + 1 < text.length) {
+                    const nextCode = text.charCodeAt(i + 1);
+                    if (nextCode >= 0xDC00 && nextCode <= 0xDFFF) {
+                        const high = code - 0xD800;
+                        const low = nextCode - 0xDC00;
+                        const fullCode = 0x10000 + (high << 10) + low;
+                        codePoints.push(fullCode);
+                        surrogateInfo.push(`${text[i]}${text[i+1]}: U+${code.toString(16).padStart(4, '0')} U+${nextCode.toString(16).padStart(4, '0')} → U+${fullCode.toString(16).padStart(5, '0')} (Surrogate Pair)`);
+                        i++; // Skip the low surrogate
+                    } else {
+                        codePoints.push(code);
+                        surrogateInfo.push(`${text[i]}: U+${code.toString(16).padStart(4, '0')} (Unpaired High Surrogate)`);
+                    }
+                } else if (code >= 0xDC00 && code <= 0xDFFF) {
+                    codePoints.push(code);
+                    surrogateInfo.push(`${text[i]}: U+${code.toString(16).padStart(4, '0')} (Unpaired Low Surrogate)`);
+                } else {
+                    codePoints.push(code);
+                    surrogateInfo.push(`${text[i]}: U+${code.toString(16).padStart(4, '0')} (BMP)`);
+                }
+            }
+            return { codePoints, surrogateInfo };
+        }
+
+        function unicodeArrayToText(array) {
+            return String.fromCodePoint(...array);
+        }
+
+        function processText() {
+            const inputText = document.getElementById('inputText').value;
+            const operand = document.getElementById('operand').value;
+            const value = parseInt(document.getElementById('operandValue').value);
+            const { codePoints, surrogateInfo } = textToUnicodeArray(inputText);
+            let modifiedArray = [];
+            let uPlusChanges = [];
+
+            for (let code of codePoints) {
+                let newCode = operand === 'add' ? code + value : code - value;
+                newCode = Math.max(0, Math.min(newCode, 0x10FFFF));
+                modifiedArray.push(newCode);
+                uPlusChanges.push(`U+${code.toString(16).padStart(4, '0')} → U+${newCode.toString(16).padStart(4, '0')}`);
+            }
+
+            const outputText = unicodeArrayToText(modifiedArray);
+            document.getElementById('output').textContent = outputText;
+            document.getElementById('uPlusWindow').textContent = 'U+ Analysis:\n' + surrogateInfo.join('\n') + '\n\nChanges:\n' + uPlusChanges.join('\n');
+        }
+
+        function saveToMemory() {
+            const outputText = document.getElementById('output').textContent;
+            if (outputText.length * 2 > MEMORY_SIZE) {
+                alert('Output exceeds 8MB virtual memory limit!');
+                return;
+            }
+            virtualMemory = outputText;
+            alert('Saved to virtual memory!');
+        }
+
+        function loadFromMemory() {
+            if (virtualMemory) {
+                document.getElementById('output').textContent = virtualMemory;
+                document.getElementById('uPlusWindow').textContent = 'U+ Analysis: Loaded from memory';
+            } else {
+                alert('Nothing in memory to load!');
+            }
+        }
+    </script>
+</body>
+</html>
