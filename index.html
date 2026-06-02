@@ -48,6 +48,7 @@
             height: 260px;
             opacity: 0.7;
             animation: fade 6s infinite ease-in-out, invertCycle 6s infinite steps(2);
+            object-fit: contain;
         }
 
         @keyframes fade {
@@ -74,63 +75,82 @@
             white-space: nowrap;
         }
 
-        /* Wallet Panel */
-        #walletPanel {
+        /* Mini Terminal */
+        #terminal {
             position: absolute;
             bottom: 20px;
             left: 20px;
             background: rgba(0, 0, 0, 0.95);
             border: 2px solid #0aff9d;
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 4px;
+            padding: 15px;
             z-index: 30;
-            max-width: 350px;
-            box-shadow: 0 0 15px rgba(10, 255, 157, 0.3);
-            min-width: 300px;
-        }
-
-        #walletPanel h3 {
-            color: #0aff9d;
-            margin-bottom: 12px;
-            text-shadow: 0 0 10px #0aff9d;
-            font-size: 1.2rem;
-        }
-
-        .wallet-info {
-            margin: 10px 0;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .wallet-label {
-            color: #0aff9d;
-            opacity: 0.7;
-        }
-
-        .wallet-value {
-            color: #0aff9d;
-            word-break: break-all;
-            margin-top: 4px;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(10, 255, 157, 0.4), inset 0 0 10px rgba(10, 255, 157, 0.1);
             font-size: 0.85rem;
+            line-height: 1.8;
+            min-width: 320px;
         }
 
-        #connectBtn, #buyBtn, #stopBtn, #disconnectBtn {
-            padding: 10px 16px;
+        .terminal-line {
+            color: #0aff9d;
+            margin: 4px 0;
+            text-shadow: 0 0 5px rgba(10, 255, 157, 0.5);
+        }
+
+        .terminal-label {
+            opacity: 0.6;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .terminal-value {
+            opacity: 1;
+            font-weight: bold;
+        }
+
+        .terminal-success {
+            color: #44ff44;
+            text-shadow: 0 0 5px rgba(68, 255, 68, 0.5);
+        }
+
+        .terminal-error {
+            color: #ff4444;
+            text-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
+        }
+
+        .terminal-loading {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+
+        .terminal-button-group {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        #connectBtn, #buyBtn, #refreshBtn, #stopBtn, #disconnectBtn {
+            padding: 8px 12px;
             background: #0aff9d;
             color: black;
             border: none;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             cursor: pointer;
-            border-radius: 4px;
-            margin: 8px 4px 8px 0;
+            border-radius: 3px;
             font-weight: bold;
             transition: all 0.3s;
             font-family: monospace;
+            flex: 1;
         }
 
-        #connectBtn:hover, #buyBtn:hover, #stopBtn:hover, #disconnectBtn:hover {
+        #connectBtn:hover, #buyBtn:hover, #refreshBtn:hover, #stopBtn:hover, #disconnectBtn:hover {
             background: #08cc7f;
-            box-shadow: 0 0 10px rgba(10, 255, 157, 0.5);
+            box-shadow: 0 0 10px rgba(10, 255, 157, 0.6);
         }
 
         #connectBtn:disabled {
@@ -142,34 +162,11 @@
 
         #disconnectBtn {
             background: #666;
+            flex: 0.5;
         }
 
         #disconnectBtn:hover {
             background: #555;
-        }
-
-        .loading {
-            display: inline-block;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            color: #ff4444;
-            font-size: 0.85rem;
-            margin-top: 8px;
-            text-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
-        }
-
-        .success {
-            color: #44ff44;
-            font-size: 0.85rem;
-            margin-top: 8px;
-            text-shadow: 0 0 5px rgba(68, 255, 68, 0.5);
         }
 
         #stopBtn {
@@ -178,19 +175,34 @@
             right: 20px;
         }
 
+        .divider {
+            height: 1px;
+            background: rgba(10, 255, 157, 0.2);
+            margin: 8px 0;
+        }
+
         @media (max-width: 600px) {
-            #walletPanel {
+            #terminal {
                 bottom: 60px;
                 left: 10px;
                 right: 10px;
                 max-width: none;
+                font-size: 0.75rem;
             }
 
             #stopBtn {
                 bottom: 10px;
                 right: 10px;
-                padding: 8px 12px;
-                font-size: 0.85rem;
+                padding: 8px 10px;
+                font-size: 0.75rem;
+            }
+
+            .terminal-button-group {
+                flex-wrap: wrap;
+            }
+
+            #connectBtn, #buyBtn, #refreshBtn, #disconnectBtn {
+                flex: 1 1 calc(50% - 4px);
             }
         }
     </style>
@@ -199,250 +211,257 @@
 
     <div id="title">Ghosteyezzzz</div>
 
-    <!-- Floating eye images - using IMG_6750.png since eye-gradient.png needs proper upload -->
-    <img src="IMG_6750.png" class="ghost" style="top:10%; left:20%; animation-delay:0s;" alt="Ghosteyezzzz graphic 1">
-    <img src="IMG_6750.png" class="ghost" style="top:50%; left:60%; animation-delay:2s;" alt="Ghosteyezzzz graphic 2">
-    <img src="IMG_6750.png" class="ghost" style="top:70%; left:30%; animation-delay:4s;" alt="Ghosteyezzzz graphic 3">
+    <!-- Floating eye images -->
+    <img src="eye-gradient.png" class="ghost" style="top:10%; left:20%; animation-delay:0s;" alt="Ghosteyezzzz 1">
+    <img src="eye-gradient.png" class="ghost" style="top:50%; left:60%; animation-delay:2s;" alt="Ghosteyezzzz 2">
+    <img src="eye-gradient.png" class="ghost" style="top:70%; left:30%; animation-delay:4s;" alt="Ghosteyezzzz 3">
 
     <div id="bounceText">Ghosteyezzzz is for sleep and fun</div>
 
-    <!-- Wallet Integration Panel -->
-    <div id="walletPanel">
-        <h3>💎 ELUR Token</h3>
+    <!-- Mini Terminal -->
+    <div id="terminal">
+        <div class="terminal-line">
+            <span class="terminal-label">> system</span>
+            <span class="terminal-value">ELUR TOKEN v1.0</span>
+        </div>
         
-        <div id="disconnected">
-            <button id="connectBtn" type="button">Connect Phantom</button>
-            <div class="wallet-info" style="color: #888; font-size: 0.85rem; margin-top: 10px;">
-                Connect your Phantom wallet to buy tokens and track your investment.
+        <div id="terminalContent">
+            <div class="terminal-line">
+                <span class="terminal-label">> status</span>
+                <span class="terminal-value">awaiting connection</span>
             </div>
         </div>
 
-        <div id="connected" style="display: none;">
-            <div class="wallet-info">
-                <div class="wallet-label">Wallet Address:</div>
-                <div class="wallet-value" id="walletAddress">-</div>
-            </div>
+        <div class="divider"></div>
 
-            <div class="wallet-info">
-                <div class="wallet-label">Your Balance:</div>
-                <div class="wallet-value"><span id="tokenBalance">0</span> ELUR</div>
-            </div>
-
-            <div class="wallet-info">
-                <div class="wallet-label">USD Value:</div>
-                <div class="wallet-value">$<span id="usdValue">0.00</span></div>
-            </div>
-
-            <button id="buyBtn" type="button">Buy on Phantom</button>
-            <button id="disconnectBtn" type="button">Disconnect</button>
-
-            <div id="errorMsg" class="error"></div>
-            <div id="successMsg" class="success"></div>
+        <div class="terminal-button-group">
+            <button id="connectBtn" type="button">🔗 Connect</button>
+            <button id="buyBtn" type="button" style="display:none;">💎 Buy</button>
+            <button id="refreshBtn" type="button" style="display:none;">🔄 Refresh</button>
+            <button id="disconnectBtn" type="button" style="display:none;">✕</button>
         </div>
     </div>
 
     <button id="stopBtn" type="button">Stop Animations</button>
 
     <script>
-        console.log('Ghosteyezzzz script loaded');
+        console.log('🔮 Ghosteyezzzz initialized');
 
-        // Token configuration
         const TOKEN_MINT = 'ELURv1srPxU12BCQc1NuPMUB2aCavtZHJtXtuNCtT2FC';
-        const TOKEN_NAME = 'ELUR';
         const PHANTOM_TRADE_URL = `https://trade.phantom.com/token/${TOKEN_MINT}`;
-
-        // Phantom wallet integration
+        
         let walletConnected = false;
         let userWallet = null;
 
-        // Check if Phantom is installed
-        function isPhantomInstalled() {
-            const result = !!(window.solana && window.solana.isPhantom);
-            console.log('Phantom installed?', result);
-            return result;
+        // Better RPC endpoints (with fallbacks)
+        const RPC_ENDPOINTS = [
+            'https://api.helius-rpc.com/?api-key=fake', // Helius free
+            'https://rpc.ankr.com/solana',               // Ankr
+            'https://solana-api.projectserum.com',       // Project Serum
+            'https://api.mainnet-beta.solana.com'        // Solana official (last resort)
+        ];
+
+        function updateTerminal(lines) {
+            const content = document.getElementById('terminalContent');
+            content.innerHTML = lines.map(line => {
+                if (line.type === 'success') {
+                    return `<div class="terminal-line"><span class="terminal-label">> ${line.label}</span> <span class="terminal-value terminal-success">${line.value}</span></div>`;
+                } else if (line.type === 'error') {
+                    return `<div class="terminal-line"><span class="terminal-label">> ${line.label}</span> <span class="terminal-value terminal-error">${line.value}</span></div>`;
+                } else if (line.type === 'loading') {
+                    return `<div class="terminal-line"><span class="terminal-label">> ${line.label}</span> <span class="terminal-value terminal-loading">${line.value}</span></div>`;
+                }
+                return `<div class="terminal-line"><span class="terminal-label">> ${line.label}</span> <span class="terminal-value">${line.value}</span></div>`;
+            }).join('');
         }
 
-        // Connect to Phantom
+        function isPhantomInstalled() {
+            return !!(window.solana && window.solana.isPhantom);
+        }
+
         async function connectPhantomWallet() {
-            console.log('Connect button clicked');
+            console.log('🔗 Connecting to Phantom...');
             
             if (!isPhantomInstalled()) {
-                console.log('Phantom not installed');
-                showError('Phantom wallet not found. Please install it from https://phantom.app');
+                updateTerminal([
+                    { label: 'error', value: 'Phantom not installed', type: 'error' }
+                ]);
                 return;
             }
 
+            const connectBtn = document.getElementById('connectBtn');
+            connectBtn.disabled = true;
+            updateTerminal([
+                { label: 'status', value: 'connecting...', type: 'loading' }
+            ]);
+
             try {
-                const connectBtn = document.getElementById('connectBtn');
-                connectBtn.disabled = true;
-                connectBtn.innerHTML = '<span class="loading">⏳</span> Connecting...';
-                
-                console.log('Requesting connection to Phantom...');
-                
-                // Request connection
                 const response = await window.solana.connect();
-                console.log('Connected:', response);
-                
                 userWallet = response.publicKey.toString();
                 walletConnected = true;
 
-                console.log('User wallet:', userWallet);
+                console.log('✅ Connected:', userWallet);
 
-                document.getElementById('disconnected').style.display = 'none';
-                document.getElementById('connected').style.display = 'block';
-                document.getElementById('walletAddress').textContent = userWallet.slice(0, 4) + '...' + userWallet.slice(-4);
+                updateTerminal([
+                    { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                    { label: 'status', value: 'connected', type: 'success' },
+                    { label: 'balance', value: 'fetching...', type: 'loading' }
+                ]);
 
-                showSuccess('Wallet connected!');
+                document.getElementById('buyBtn').style.display = 'inline-block';
+                document.getElementById('refreshBtn').style.display = 'inline-block';
+                document.getElementById('disconnectBtn').style.display = 'inline-block';
+                document.getElementById('connectBtn').style.display = 'none';
+
                 await updateTokenBalance();
 
-                connectBtn.disabled = false;
-                connectBtn.innerHTML = 'Connect Phantom';
-
             } catch (error) {
-                console.error('Connection error:', error);
-                showError('Failed to connect wallet: ' + error.message);
-                document.getElementById('connectBtn').disabled = false;
-                document.getElementById('connectBtn').innerHTML = 'Connect Phantom';
+                console.error('❌ Connection failed:', error);
+                updateTerminal([
+                    { label: 'error', value: error.message, type: 'error' }
+                ]);
+                connectBtn.disabled = false;
             }
         }
 
-        // Disconnect wallet
+        async function updateTokenBalance() {
+            if (!userWallet) return;
+
+            console.log('💰 Fetching balance...');
+            updateTerminal([
+                { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                { label: 'status', value: 'connected', type: 'success' },
+                { label: 'balance', value: 'querying blockchain...', type: 'loading' }
+            ]);
+
+            // Try each RPC endpoint
+            for (let i = 0; i < RPC_ENDPOINTS.length; i++) {
+                try {
+                    console.log(`Trying RPC endpoint ${i + 1}/${RPC_ENDPOINTS.length}`);
+                    
+                    const response = await fetch(RPC_ENDPOINTS[i], {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            id: 1,
+                            method: 'getTokenAccountsByOwner',
+                            params: [
+                                userWallet,
+                                { mint: TOKEN_MINT },
+                                { encoding: 'jsonParsed' }
+                            ]
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        console.log(`Endpoint ${i + 1} error:`, data.error.message);
+                        continue;
+                    }
+
+                    if (data.result && data.result.value.length > 0) {
+                        const tokenAccount = data.result.value[0];
+                        const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount || 0;
+                        const estimatedPrice = 0.001;
+                        const usdValue = (balance * estimatedPrice).toFixed(2);
+
+                        console.log('✅ Balance found:', balance);
+
+                        updateTerminal([
+                            { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                            { label: 'status', value: 'connected', type: 'success' },
+                            { label: 'balance', value: `${balance.toFixed(2)} ELUR`, type: 'success' },
+                            { label: 'value', value: `$${usdValue} USD`, type: 'success' }
+                        ]);
+                        return;
+                    } else {
+                        console.log('No token account found');
+                        updateTerminal([
+                            { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                            { label: 'status', value: 'connected', type: 'success' },
+                            { label: 'balance', value: '0.00 ELUR', type: 'success' },
+                            { label: 'note', value: 'buy tokens to begin', type: 'success' }
+                        ]);
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Endpoint ${i + 1} failed:`, error.message);
+                }
+            }
+
+            // All endpoints failed
+            updateTerminal([
+                { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                { label: 'status', value: 'connected', type: 'success' },
+                { label: 'balance', value: 'query failed - retry', type: 'error' }
+            ]);
+        }
+
+        function buyTokens() {
+            console.log('💎 Opening Phantom trade...');
+            window.open(PHANTOM_TRADE_URL, '_blank');
+            setTimeout(() => {
+                if (walletConnected) {
+                    updateTokenBalance();
+                }
+            }, 3000);
+        }
+
         function disconnectWallet() {
-            console.log('Disconnect clicked');
+            console.log('❌ Disconnecting...');
             if (window.solana) {
                 window.solana.disconnect();
             }
             walletConnected = false;
             userWallet = null;
-            document.getElementById('connected').style.display = 'none';
-            document.getElementById('disconnected').style.display = 'block';
-            showSuccess('Wallet disconnected');
+
+            updateTerminal([
+                { label: 'status', value: 'disconnected', type: 'success' }
+            ]);
+
+            document.getElementById('connectBtn').style.display = 'inline-block';
+            document.getElementById('buyBtn').style.display = 'none';
+            document.getElementById('refreshBtn').style.display = 'none';
+            document.getElementById('disconnectBtn').style.display = 'none';
         }
 
-        // Fetch token balance from Solana blockchain
-        async function updateTokenBalance() {
-            if (!userWallet) {
-                console.log('No wallet to update balance for');
-                return;
-            }
+        // Event listeners
+        document.getElementById('connectBtn').addEventListener('click', connectPhantomWallet);
+        document.getElementById('buyBtn').addEventListener('click', buyTokens);
+        document.getElementById('refreshBtn').addEventListener('click', updateTokenBalance);
+        document.getElementById('disconnectBtn').addEventListener('click', disconnectWallet);
 
-            try {
-                console.log('Fetching balance for:', userWallet);
-                
-                // Using public RPC endpoint
-                const response = await fetch('https://api.mainnet-beta.solana.com', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        jsonrpc: '2.0',
-                        id: 1,
-                        method: 'getTokenAccountsByOwner',
-                        params: [
-                            userWallet,
-                            { mint: TOKEN_MINT },
-                            { encoding: 'jsonParsed' }
-                        ]
-                    })
-                });
-
-                const data = await response.json();
-                console.log('Balance data:', data);
-                
-                if (data.result && data.result.value.length > 0) {
-                    const tokenAccount = data.result.value[0];
-                    const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount || 0;
-                    
-                    document.getElementById('tokenBalance').textContent = balance.toFixed(2);
-                    
-                    // Estimate USD value (you can update this with real price data)
-                    const estimatedPrice = 0.001; // Update this with actual price from CoinGecko/CoinMarketCap
-                    document.getElementById('usdValue').textContent = (balance * estimatedPrice).toFixed(2);
-                    
-                    showSuccess('Balance updated!');
-                } else {
-                    // No token account found (user hasn't bought yet)
-                    document.getElementById('tokenBalance').textContent = '0';
-                    document.getElementById('usdValue').textContent = '0.00';
-                }
-            } catch (error) {
-                console.error('Balance fetch error:', error);
-                showError('Could not fetch balance');
-            }
-        }
-
-        // Open Phantom trade page
-        function buyTokens() {
-            console.log('Buy button clicked, opening:', PHANTOM_TRADE_URL);
-            window.open(PHANTOM_TRADE_URL, '_blank');
-            // Auto-refresh balance after 5 seconds in case they completed purchase
-            setTimeout(() => {
-                if (walletConnected) {
-                    updateTokenBalance();
-                }
-            }, 5000);
-        }
-
-        // UI helpers
-        function showError(msg) {
-            console.error('Error:', msg);
-            const errorDiv = document.getElementById('errorMsg');
-            errorDiv.textContent = '❌ ' + msg;
-            setTimeout(() => { errorDiv.textContent = ''; }, 4000);
-        }
-
-        function showSuccess(msg) {
-            console.log('Success:', msg);
-            const successDiv = document.getElementById('successMsg');
-            successDiv.textContent = '✅ ' + msg;
-            setTimeout(() => { successDiv.textContent = ''; }, 3000);
-        }
-
-        // Initialize event listeners
-        function initializeEventListeners() {
-            console.log('Initializing event listeners');
-            
-            const connectBtn = document.getElementById('connectBtn');
-            const buyBtn = document.getElementById('buyBtn');
-            const disconnectBtn = document.getElementById('disconnectBtn');
-            
-            if (connectBtn) {
-                connectBtn.addEventListener('click', connectPhantomWallet);
-                console.log('Connect button listener attached');
-            }
-            
-            if (buyBtn) {
-                buyBtn.addEventListener('click', buyTokens);
-                console.log('Buy button listener attached');
-            }
-            
-            if (disconnectBtn) {
-                disconnectBtn.addEventListener('click', disconnectWallet);
-                console.log('Disconnect button listener attached');
-            }
-        }
-
-        // Check if Phantom is already connected (persistence)
+        // Check for existing connection
         async function checkPhantomConnection() {
-            console.log('Checking for existing Phantom connection');
             if (isPhantomInstalled()) {
                 try {
                     const response = await window.solana.connect({ onlyIfTrusted: true });
                     userWallet = response.publicKey.toString();
                     walletConnected = true;
-                    console.log('Auto-connected to:', userWallet);
-                    document.getElementById('disconnected').style.display = 'none';
-                    document.getElementById('connected').style.display = 'block';
-                    document.getElementById('walletAddress').textContent = userWallet.slice(0, 4) + '...' + userWallet.slice(-4);
+
+                    console.log('🔄 Auto-connected:', userWallet);
+
+                    updateTerminal([
+                        { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                        { label: 'status', value: 'connected', type: 'success' },
+                        { label: 'balance', value: 'fetching...', type: 'loading' }
+                    ]);
+
+                    document.getElementById('buyBtn').style.display = 'inline-block';
+                    document.getElementById('refreshBtn').style.display = 'inline-block';
+                    document.getElementById('disconnectBtn').style.display = 'inline-block';
+                    document.getElementById('connectBtn').style.display = 'none';
+
                     await updateTokenBalance();
                 } catch (error) {
                     console.log('Not previously connected');
                 }
-            } else {
-                console.log('Phantom not installed');
             }
         }
 
-        // Original animations code
+        // Animations
         const text = document.getElementById("bounceText");
         let x = 100, y = 100;
         let dx = 2, dy = 2;
@@ -464,7 +483,6 @@
         }
         let bounceInterval = requestAnimationFrame(bounce);
 
-        // Stop animations button
         document.getElementById("stopBtn").addEventListener('click', () => {
             animating = false;
             document.querySelectorAll(".ghost").forEach(el => el.style.animation = "none");
@@ -473,9 +491,7 @@
             document.getElementById("stopBtn").innerHTML = "Animations Stopped ⏸";
         });
 
-        // Main initialization
-        console.log('DOM ready, initializing...');
-        initializeEventListeners();
+        // Initialize
         checkPhantomConnection();
     </script>
 </body>
