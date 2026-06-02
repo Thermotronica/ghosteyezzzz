@@ -49,6 +49,7 @@
             opacity: 0.7;
             animation: fade 6s infinite ease-in-out, invertCycle 6s infinite steps(2);
             object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(10, 255, 157, 0.3));
         }
 
         @keyframes fade {
@@ -60,9 +61,9 @@
         }
 
         @keyframes invertCycle {
-            0% { filter: invert(0); }
-            50% { filter: invert(1); }
-            100% { filter: invert(0); }
+            0% { filter: invert(0) drop-shadow(0 0 20px rgba(10, 255, 157, 0.3)); }
+            50% { filter: invert(1) drop-shadow(0 0 20px rgba(10, 255, 157, 0.3)); }
+            100% { filter: invert(0) drop-shadow(0 0 20px rgba(10, 255, 157, 0.3)); }
         }
 
         /* Bouncing Blu-ray style text */
@@ -212,9 +213,9 @@
     <div id="title">Ghosteyezzzz</div>
 
     <!-- Floating eye images -->
-    <img src="ghosteyezzzz.jpg" class="ghost" style="top:10%; left:20%; animation-delay:0s;" alt="Ghosteyezzzz 1">
-    <img src="ghosteyezzzz.jpg" class="ghost" style="top:50%; left:60%; animation-delay:2s;" alt="Ghosteyezzzz 2">
-    <img src="ghosteyezzzz.jpg" class="ghost" style="top:70%; left:30%; animation-delay:4s;" alt="Ghosteyezzzz 3">
+    <img src="ghosteyezzzz.jpg" class="ghost" style="top:10%; left:20%; animation-delay:0s;" alt="Ghosteyezzzz 1" onerror="console.log('Image load error')">
+    <img src="ghosteyezzzz.jpg" class="ghost" style="top:50%; left:60%; animation-delay:2s;" alt="Ghosteyezzzz 2" onerror="console.log('Image load error')">
+    <img src="ghosteyezzzz.jpg" class="ghost" style="top:70%; left:30%; animation-delay:4s;" alt="Ghosteyezzzz 3" onerror="console.log('Image load error')">
 
     <div id="bounceText">Ghosteyezzzz is for sleep and fun</div>
 
@@ -245,21 +246,20 @@
     <button id="stopBtn" type="button">Stop Animations</button>
 
     <script>
-        console.log('🔮 Ghosteyezzzz initialized');
+        // Solana Web3 imports via CDN
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js';
+        script.onload = initializeApp;
+        document.head.appendChild(script);
+
+        console.log('🔮 Ghosteyezzzz initializing...');
 
         const TOKEN_MINT = 'ELURv1srPxU12BCQc1NuPMUB2aCavtZHJtXtuNCtT2FC';
         const PHANTOM_TRADE_URL = `https://trade.phantom.com/token/${TOKEN_MINT}`;
         
         let walletConnected = false;
         let userWallet = null;
-
-        // Better RPC endpoints (with fallbacks)
-        const RPC_ENDPOINTS = [
-            'https://api.helius-rpc.com/?api-key=fake',
-            'https://rpc.ankr.com/solana',
-            'https://solana-api.projectserum.com',
-            'https://api.mainnet-beta.solana.com'
-        ];
+        let connection = null;
 
         function updateTerminal(lines) {
             const content = document.getElementById('terminalContent');
@@ -284,7 +284,7 @@
             
             if (!isPhantomInstalled()) {
                 updateTerminal([
-                    { label: 'error', value: 'Phantom not installed', type: 'error' }
+                    { label: 'error', value: 'Phantom not found', type: 'error' }
                 ]);
                 return;
             }
@@ -302,6 +302,12 @@
 
                 console.log('✅ Connected:', userWallet);
 
+                // Initialize Solana connection
+                connection = new solanaWeb3.Connection(
+                    'https://api.mainnet-beta.solana.com',
+                    'confirmed'
+                );
+
                 updateTerminal([
                     { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
                     { label: 'status', value: 'connected', type: 'success' },
@@ -313,7 +319,7 @@
                 document.getElementById('disconnectBtn').style.display = 'inline-block';
                 document.getElementById('connectBtn').style.display = 'none';
 
-                await updateTokenBalance();
+                await getELURBalance();
 
             } catch (error) {
                 console.error('❌ Connection failed:', error);
@@ -324,77 +330,57 @@
             }
         }
 
-        async function updateTokenBalance() {
-            if (!userWallet) return;
-
-            console.log('💰 Fetching balance...');
-            updateTerminal([
-                { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
-                { label: 'status', value: 'connected', type: 'success' },
-                { label: 'balance', value: 'querying blockchain...', type: 'loading' }
-            ]);
-
-            for (let i = 0; i < RPC_ENDPOINTS.length; i++) {
-                try {
-                    console.log(`Trying RPC endpoint ${i + 1}/${RPC_ENDPOINTS.length}`);
-                    
-                    const response = await fetch(RPC_ENDPOINTS[i], {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            jsonrpc: '2.0',
-                            id: 1,
-                            method: 'getTokenAccountsByOwner',
-                            params: [
-                                userWallet,
-                                { mint: TOKEN_MINT },
-                                { encoding: 'jsonParsed' }
-                            ]
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.error) {
-                        console.log(`Endpoint ${i + 1} error:`, data.error.message);
-                        continue;
-                    }
-
-                    if (data.result && data.result.value.length > 0) {
-                        const tokenAccount = data.result.value[0];
-                        const balance = tokenAccount.account.data.parsed.info.tokenAmount.uiAmount || 0;
-                        const estimatedPrice = 0.001;
-                        const usdValue = (balance * estimatedPrice).toFixed(2);
-
-                        console.log('✅ Balance found:', balance);
-
-                        updateTerminal([
-                            { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
-                            { label: 'status', value: 'connected', type: 'success' },
-                            { label: 'balance', value: `${balance.toFixed(2)} ELUR`, type: 'success' },
-                            { label: 'value', value: `$${usdValue} USD`, type: 'success' }
-                        ]);
-                        return;
-                    } else {
-                        console.log('No token account found');
-                        updateTerminal([
-                            { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
-                            { label: 'status', value: 'connected', type: 'success' },
-                            { label: 'balance', value: '0.00 ELUR', type: 'success' },
-                            { label: 'note', value: 'buy tokens to begin', type: 'success' }
-                        ]);
-                        return;
-                    }
-                } catch (error) {
-                    console.log(`Endpoint ${i + 1} failed:`, error.message);
-                }
+        async function getELURBalance() {
+            if (!userWallet || !connection) {
+                console.log('No wallet or connection');
+                return;
             }
 
-            updateTerminal([
-                { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
-                { label: 'status', value: 'connected', type: 'success' },
-                { label: 'balance', value: 'query failed - retry', type: 'error' }
-            ]);
+            try {
+                console.log('💰 Getting ELUR balance for:', userWallet);
+                
+                const PublicKey = solanaWeb3.PublicKey;
+                const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJsyFbPVwwQQfjarZaMS5dC76fy');
+                
+                // Get all token accounts for this wallet
+                const response = await connection.getParsedTokenAccountsByOwner(
+                    new PublicKey(userWallet),
+                    { programId: TOKEN_PROGRAM_ID }
+                );
+
+                console.log('Token accounts found:', response.value.length);
+
+                // Find ELUR token account
+                let elurBalance = 0;
+                response.value.forEach(account => {
+                    const mint = account.account.data.parsed.info.mint;
+                    const balance = account.account.data.parsed.info.tokenAmount.uiAmount;
+                    
+                    console.log('Token:', mint, 'Balance:', balance);
+                    
+                    if (mint === TOKEN_MINT) {
+                        elurBalance = balance;
+                        console.log('✅ Found ELUR:', elurBalance);
+                    }
+                });
+
+                const usdValue = (elurBalance * 0.001).toFixed(2);
+
+                updateTerminal([
+                    { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                    { label: 'status', value: 'connected', type: 'success' },
+                    { label: 'balance', value: `${elurBalance.toFixed(2)} ELUR`, type: 'success' },
+                    { label: 'value', value: `$${usdValue} USD`, type: 'success' }
+                ]);
+
+            } catch (error) {
+                console.error('❌ Balance fetch failed:', error);
+                updateTerminal([
+                    { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
+                    { label: 'status', value: 'connected', type: 'success' },
+                    { label: 'error', value: error.message, type: 'error' }
+                ]);
+            }
         }
 
         function buyTokens() {
@@ -402,7 +388,7 @@
             window.open(PHANTOM_TRADE_URL, '_blank');
             setTimeout(() => {
                 if (walletConnected) {
-                    updateTokenBalance();
+                    getELURBalance();
                 }
             }, 3000);
         }
@@ -425,19 +411,28 @@
             document.getElementById('disconnectBtn').style.display = 'none';
         }
 
-        // Event listeners
-        document.getElementById('connectBtn').addEventListener('click', connectPhantomWallet);
-        document.getElementById('buyBtn').addEventListener('click', buyTokens);
-        document.getElementById('refreshBtn').addEventListener('click', updateTokenBalance);
-        document.getElementById('disconnectBtn').addEventListener('click', disconnectWallet);
+        // Initialize app after web3 library loads
+        async function initializeApp() {
+            console.log('✅ Solana Web3 library loaded');
+            
+            // Event listeners
+            document.getElementById('connectBtn').addEventListener('click', connectPhantomWallet);
+            document.getElementById('buyBtn').addEventListener('click', buyTokens);
+            document.getElementById('refreshBtn').addEventListener('click', getELURBalance);
+            document.getElementById('disconnectBtn').addEventListener('click', disconnectWallet);
 
-        // Check for existing connection
-        async function checkPhantomConnection() {
+            // Check for existing connection
             if (isPhantomInstalled()) {
                 try {
                     const response = await window.solana.connect({ onlyIfTrusted: true });
                     userWallet = response.publicKey.toString();
                     walletConnected = true;
+
+                    // Initialize Solana connection
+                    connection = new solanaWeb3.Connection(
+                        'https://api.mainnet-beta.solana.com',
+                        'confirmed'
+                    );
 
                     console.log('🔄 Auto-connected:', userWallet);
 
@@ -452,7 +447,7 @@
                     document.getElementById('disconnectBtn').style.display = 'inline-block';
                     document.getElementById('connectBtn').style.display = 'none';
 
-                    await updateTokenBalance();
+                    await getELURBalance();
                 } catch (error) {
                     console.log('Not previously connected');
                 }
@@ -488,9 +483,6 @@
             cancelAnimationFrame(bounceInterval);
             document.getElementById("stopBtn").innerHTML = "Animations Stopped ⏸";
         });
-
-        // Initialize
-        checkPhantomConnection();
     </script>
 </body>
 </html>
