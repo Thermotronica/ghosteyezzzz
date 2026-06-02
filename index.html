@@ -212,9 +212,9 @@
     <div id="title">Ghosteyezzzz</div>
 
     <!-- Floating eye images -->
-    <img src="eye-gradient.png" class="ghost" style="top:10%; left:20%; animation-delay:0s;" alt="Ghosteyezzzz 1">
-    <img src="eye-gradient.png" class="ghost" style="top:50%; left:60%; animation-delay:2s;" alt="Ghosteyezzzz 2">
-    <img src="eye-gradient.png" class="ghost" style="top:70%; left:30%; animation-delay:4s;" alt="Ghosteyezzzz 3">
+    <img src="ghosteyezzzz.jpg" class="ghost" style="top:10%; left:20%; animation-delay:0s;" alt="Ghosteyezzzz 1">
+    <img src="ghosteyezzzz.jpg" class="ghost" style="top:50%; left:60%; animation-delay:2s;" alt="Ghosteyezzzz 2">
+    <img src="ghosteyezzzz.jpg" class="ghost" style="top:70%; left:30%; animation-delay:4s;" alt="Ghosteyezzzz 3">
 
     <div id="bounceText">Ghosteyezzzz is for sleep and fun</div>
 
@@ -255,10 +255,10 @@
 
         // Better RPC endpoints (with fallbacks)
         const RPC_ENDPOINTS = [
-            'https://api.helius-rpc.com/?api-key=fake', // Helius free
-            'https://rpc.ankr.com/solana',               // Ankr
-            'https://solana-api.projectserum.com',       // Project Serum
-            'https://api.mainnet-beta.solana.com'        // Solana official (last resort)
+            'https://api.helius-rpc.com/?api-key=fake',
+            'https://rpc.ankr.com/solana',
+            'https://solana-api.projectserum.com',
+            'https://api.mainnet-beta.solana.com'
         ];
 
         function updateTerminal(lines) {
@@ -334,7 +334,6 @@
                 { label: 'balance', value: 'querying blockchain...', type: 'loading' }
             ]);
 
-            // Try each RPC endpoint
             for (let i = 0; i < RPC_ENDPOINTS.length; i++) {
                 try {
                     console.log(`Trying RPC endpoint ${i + 1}/${RPC_ENDPOINTS.length}`);
@@ -391,7 +390,6 @@
                 }
             }
 
-            // All endpoints failed
             updateTerminal([
                 { label: 'wallet', value: userWallet.slice(0, 4) + '...' + userWallet.slice(-4), type: 'success' },
                 { label: 'status', value: 'connected', type: 'success' },
