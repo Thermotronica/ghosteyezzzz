@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghosteyezzzz</title>
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            overflow: hidden;
+            font-family: monospace;
+            color: #0aff9d;
+        }
+
+        /* Cursed Matrix Title */
+        #title {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 3rem;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #0aff9d, 0 0 20px #0aff9d;
+            animation: glitch 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes glitch {
+            0% { transform: skew(0deg); }
+            20% { transform: skew(3deg); }
+            40% { transform: skew(-3deg); }
+            60% { transform: skew(2deg); }
+            80% { transform: skew(-2deg); }
+            100% { transform: skew(0deg); }
+        }
+
+        /* Floating ghosteyezzzz images */
+        .ghost {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            opacity: 0.7;
+            animation: fade 6s infinite ease-in-out, invertCycle 6s infinite steps(2);
+        }
+
+        @keyframes fade {
+            0% { opacity: 0; transform: scale(0.8); }
+            25% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0; transform: scale(1.2); }
+            75% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+
+        @keyframes invertCycle {
+            0% { filter: invert(0); }
+            50% { filter: invert(1); }
+            100% { filter: invert(0); }
+        }
+
+        /* Bouncing Blu-ray style text */
+        #bounceText {
+            position: absolute;
+            font-size: 2rem;
+            color: #0aff9d;
+            text-shadow: 0 0 10px #0aff9d;
+            z-index: 20;
+            white-space: nowrap;
+        }
+
+        /* Stop button */
+        #stopBtn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #0aff9d;
+            color: black;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 30;
+            border-radius: 4px;
+        }
+
+        #stopBtn:hover {
+            background: #08cc7f;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="title">Ghosteyezzzz</div>
+
+    <!-- Using IMG_6750.png from this repo -->
+    <img src="IMG_6750.png" class="ghost" style="top:10%; left:20%; animation-delay:0s;" alt="Ghosteyezzzz graphic 1">
+    <img src="IMG_6750.png" class="ghost" style="top:50%; left:60%; animation-delay:2s;" alt="Ghosteyezzzz graphic 2">
+    <img src="IMG_6750.png" class="ghost" style="top:70%; left:30%; animation-delay:4s;" alt="Ghosteyezzzz graphic 3">
+
+    <div id="bounceText">Ghosteyezzzz is for sleep and fun</div>
+    <button id="stopBtn">Stop Animations</button>
+
+    <script>
+        /* Bouncing text like the Blu-ray logo */
+        const text = document.getElementById("bounceText");
+        let x = 100, y = 100;
+        let dx = 2, dy = 2;
+
+        function bounce() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            x += dx;
+            y += dy;
+
+            if (x <= 0 || x + text.clientWidth >= w) dx *= -1;
+            if (y <= 0 || y + text.clientHeight >= h) dy *= -1;
+
+            text.style.left = x + "px";
+            text.style.top = y + "px";
+            bounceInterval = requestAnimationFrame(bounce);
+        }
+        let bounceInterval = requestAnimationFrame(bounce);
+
+        /* Stop animations button */
+        document.getElementById("stopBtn").onclick = () => {
+            document.querySelectorAll(".ghost").forEach(el => el.style.animation = "none");
+            text.style.animation = "none";
+            cancelAnimationFrame(bounceInterval);
+        };
+    </script>
+</body>
+</html>
