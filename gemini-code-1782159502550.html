@@ -1,0 +1,44 @@
+<h1>word tool</h1>
+
+<div class="wallet-container" style="margin-bottom: 20px;">
+  <button id="btn-connect-wallet" style="padding: 6px 12px; background: #1a3a1a; color: #33ff66; border: 0.5px solid #33ff66; cursor: pointer;">
+    Connect Wallet
+  </button>
+  <span id="wallet-status" style="margin-left: 10px; color: #226622; font-size: 0.75rem;">Disconnected</span>
+</div>
+
+<div id="budget-row">
+  <span>budget</span>
+  <div id="budget-bar"><div id="budget-fill"></div></div>
+  <span id="budget">80</span>
+</div>
+
+<div id="input-row">
+  <input type="text" id="word-in" maxlength="80" placeholder="type a word or phrase">
+  <button id="btn-submit">transform</button>
+  <button id="btn-reset">reset</button>
+</div>
+
+<label for="word-out">output</label>
+<textarea id="word-out" rows="10" readonly></textarea>
+
+<p id="history-label">history</p>
+<ul id="history"></ul>
+
+
+<style>
+  /* Paste all your CSS from CodePen here */
+  body { font-family: 'Courier New', monospace; background: #0e0e0e; }
+  #budget-row { display: flex; align-items: center; }
+  /* ... the rest of your CSS ... */
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.98.0/lib/index.iife.js"></script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Paste all of the JavaScript logic we just built right here
+  });
+</script>
